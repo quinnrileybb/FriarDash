@@ -161,13 +161,43 @@ if view == 'Pitcher':
     ax1.set(xlabel='Type Count Group', ylabel='Avg Velocity (MPH)', title='Vel by Type Count')
     ax1.legend(); st.pyplot(fig1)
 
-    vd = df_pitcher.groupby(['Date','PitchType'])['PitchVelo'].mean().reset_index()
-    pivot = vd.pivot(index='Date', columns='PitchType', values='PitchVelo')
-    fig2,ax2 = plt.subplots(figsize=(6,4))
+    df_pitcher['Date'] = pd.to_datetime(df_pitcher['Date'], format='%m/%d/%y')
+    pivot = (
+        df_pitcher
+        .groupby(['Date','PitchType'])['PitchVelo']
+        .mean()
+        .reset_index()
+        .sort_values('Date')
+        .pivot(index='Date', columns='PitchType', values='PitchVelo')
+        .sort_index()
+    )
+    fig, ax = plt.subplots(figsize=(6,4))
     for pt in pivot.columns:
-        ax2.plot(pivot.index, pivot[pt], marker='o', label=pt)
-    ax2.set(xlabel='Date', ylabel='Avg Velocity (MPH)', title='Vel by Date')
-    ax2.legend(); plt.xticks(rotation=45); st.pyplot(fig2)
+        ax.plot(pivot.index, pivot[pt], marker='o', label=pt)
+    ax.set(xlabel='Date', ylabel='Avg Velocity (MPH)', title='Vel by Date')
+    ax.legend()
+    plt.xticks(rotation=45, ha='right')
+    plt.tight_layout()
+    st.pyplot(fig)
+
+    fig, ax = plt.subplots(figsize=(6, 4))
+    sns.kdeplot(
+        data=df_pitcher,
+        x='PitchVelo',
+        hue='PitchType',
+        fill=True,
+        common_norm=False,
+        alpha=0.5,
+        bw_adjust=0.5,
+        ax=ax
+    )
+    ax.set(
+        xlabel='Velocity (MPH)',
+        ylabel='Density',
+        title=f'{selected_pitcher} – Velocity Density by Pitch Type'
+    )
+    plt.tight_layout()
+    st.pyplot(fig)
 
 
 else:
@@ -233,7 +263,7 @@ else:
 
 # Define categories: each pitch type + velocity buckets + total
     pitch_types = fh['PitchType'].unique().tolist()
-    categories  = pitch_types + ['80+', '83+', '86+', 'BB+72', 'Total']
+    categories  = pitch_types + ['80+', '83+', '86+', 'BB 72+', 'Total']
 
 # Helper to compute metrics on a subset
     def compute_metrics(sub):
@@ -282,7 +312,7 @@ else:
             sub = fh[fh['PitchVelo'] >= 83]
         elif cat == '86+':
             sub = fh[fh['PitchVelo'] >= 86]
-        elif cat == 'BB+72':
+        elif cat == 'BB 72+':
             breaking = ['Breaking Ball']
             sub = fh[fh['PitchType'].isin(breaking) & (fh['PitchVelo'] >= 72)]
         else:
