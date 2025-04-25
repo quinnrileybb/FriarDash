@@ -130,47 +130,47 @@ if view == 'Pitcher':
     st.subheader('Heatmaps')
     xlim, ylim = (-1.5,1.5), (1.0,4.0)
     def draw_heatmap(data, title, cmap):
-    fig, ax = plt.subplots(figsize=(4, 5))
+        fig, ax = plt.subplots(figsize=(4, 5))
     # Only attempt KDE if there are >1 unique x and y
-    if not data.empty and data['x'].nunique() > 1 and data['y'].nunique() > 1:
-        try:
-            sns.kdeplot(
-                x=data['x'],
-                y=data['y'],
-                ax=ax,
-                fill=True,
-                alpha=0.7,
-                cmap=cmap,
-                bw_adjust=0.5,
-                levels=5,        # enforce fixed contour levels
-                thresh=0.05      # drop areas below 5% density
-            )
-        except ValueError:
+        if not data.empty and data['x'].nunique() > 1 and data['y'].nunique() > 1:
+            try:
+                sns.kdeplot(
+                    x=data['x'],
+                    y=data['y'],
+                    ax=ax,
+                    fill=True,
+                    alpha=0.7,
+                    cmap=cmap,
+                    bw_adjust=0.5,
+                    levels=5,        # enforce fixed contour levels
+                    thresh=0.05      # drop areas below 5% density
+                )
+            except ValueError:
             # fallback to hexbin if KDE fails
-            ax.hexbin(
-                data['x'], data['y'],
-                gridsize=25,
-                cmap=cmap,
-                mincnt=1,
-                alpha=0.7
-            )
-    else:
+                ax.hexbin(
+                    data['x'], data['y'],
+                    gridsize=25,
+                    cmap=cmap,
+                    mincnt=1,
+                    alpha=0.7
+                )
+        else:
         # too few points for KDE → scatter
-        ax.scatter(data['x'], data['y'], s=20, color='grey', alpha=0.6)
+            ax.scatter(data['x'], data['y'], s=20, color='grey', alpha=0.6)
 
     # draw the strike zone box
-    rect = Rectangle(
-        (strike_zone['x_min'], strike_zone['z_min']),
-        strike_zone['x_max'] - strike_zone['x_min'],
-        strike_zone['z_max'] - strike_zone['z_min'],
-        fill=False, edgecolor='black', linewidth=2
-    )
-    ax.add_patch(rect)
-    ax.set_xlim(-1.5, 1.5)
-    ax.set_ylim(1.0, 4.0)
-    ax.axis('off')
-    ax.set_title(title, fontsize=12)
-    return fig
+        rect = Rectangle(
+            (strike_zone['x_min'], strike_zone['z_min']),
+            strike_zone['x_max'] - strike_zone['x_min'],
+            strike_zone['z_max'] - strike_zone['z_min'],
+            fill=False, edgecolor='black', linewidth=2
+        )
+        ax.add_patch(rect)
+        ax.set_xlim(-1.5, 1.5)
+        ax.set_ylim(1.0, 4.0)
+        ax.axis('off')
+        ax.set_title(title, fontsize=12)
+        return fig
     display_heatmap = lambda figs: [col.pyplot(fig) for col,fig in zip(st.columns(3), figs)]
     cats = ['Fast Ball','Breaking Ball','Change Up']
     st.markdown('**Overall Pitch Location**')
