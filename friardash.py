@@ -351,34 +351,34 @@ else:
     from matplotlib.patches import Rectangle
 
     def draw_heatmap(data, title, cmap):
-    fig, ax = plt.subplots(figsize=(4, 5))
+        fig, ax = plt.subplots(figsize=(4, 5))
     # only attempt KDE if we have at least 2 unique points in each dimension
-    if not data.empty and data['x'].nunique() > 1 and data['y'].nunique() > 1:
-        try:
-            sns.kdeplot(
-                x=data['x'],
-                y=data['y'],
-                ax=ax,
-                fill=True,
-                alpha=0.7,
-                cmap=cmap,
-                bw_adjust=0.5,
+        if not data.empty and data['x'].nunique() > 1 and data['y'].nunique() > 1:
+            try:
+                sns.kdeplot(
+                    x=data['x'],
+                    y=data['y'],
+                    ax=ax,
+                    fill=True,
+                    alpha=0.7,
+                    cmap=cmap,
+                    bw_adjust=0.5,
                 # you can explicitly set levels too:
-                levels=5,
-                thresh=0.05
-            )
-        except ValueError:
+                    levels=5,
+                    thresh=0.05
+                )
+            except ValueError:
             # fallback to a 2D hexbin if KDE failed
-            hb = ax.hexbin(
-                data['x'], data['y'],
-                gridsize=25,
-                cmap=cmap,
-                mincnt=1,
-                alpha=0.7
-            )
-    else:
+                hb = ax.hexbin(
+                    data['x'], data['y'],
+                    gridsize=25,
+                    cmap=cmap,
+                    mincnt=1,
+                    alpha=0.7
+                )
+        else:
         # too few unique points for KDE → just scatter
-        ax.scatter(data['x'], data['y'], s=20, color='grey', alpha=0.6)
+            ax.scatter(data['x'], data['y'], s=20, color='grey', alpha=0.6)
 
     # draw the strike zone
     rect = Rectangle(
