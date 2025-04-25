@@ -381,18 +381,18 @@ else:
             ax.scatter(data['x'], data['y'], s=20, color='grey', alpha=0.6)
 
     # draw the strike zone
-    rect = Rectangle(
-        (strike_zone['x_min'], strike_zone['z_min']),
-        strike_zone['x_max'] - strike_zone['x_min'],
-        strike_zone['z_max'] - strike_zone['z_min'],
-        fill=False, edgecolor='black', linewidth=2
-    )
-    ax.add_patch(rect)
-    ax.set_xlim(-1.5, 1.5)
-    ax.set_ylim(1.0, 4.0)
-    ax.axis('off')
-    ax.set_title(title, fontsize=12)
-    return fig
+        rect = Rectangle(
+            (strike_zone['x_min'], strike_zone['z_min']),
+            strike_zone['x_max'] - strike_zone['x_min'],
+            strike_zone['z_max'] - strike_zone['z_min'],
+            fill=False, edgecolor='black', linewidth=2
+        )
+        ax.add_patch(rect)
+        ax.set_xlim(-1.5, 1.5)
+        ax.set_ylim(1.0, 4.0)
+        ax.axis('off')
+        ax.set_title(title, fontsize=12)
+        return fig
 
 # the three pitch‐type categories in your data
     categories = ['Fast Ball', 'Breaking Ball', 'Change Up']
