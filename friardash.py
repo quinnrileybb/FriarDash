@@ -355,7 +355,7 @@ else:
         elif cat=='0-1':
             sub = df_all[(df_all['Balls']==0)&(df_all['Strikes']==1)]
         elif cat=='Early Count':
-            sub = df_all[(df_all['Balls']=<1)&(df_all['Strikes']=<1)]
+            sub = df_all[(df_all['Balls']<=1)&(df_all['Strikes']<=1)]
         elif cat=='Behind':
             sub = df_all[df_all['Balls']<df_all['Strikes']]
         elif cat=='Ahead':
@@ -363,7 +363,7 @@ else:
         elif cat=='Even':
             sub = df_all[df_all['Balls']==df_all['Strikes']]
         elif cat=='2 Strikes':
-            sub = df_all[df_all['Strikes']>=2]
+            sub = df_all[df_all['Strikes']==2]
         breakdown[cat] = compute_metrics(sub)
 
 # 5) make the DataFrame and force the row order
