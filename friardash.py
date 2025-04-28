@@ -376,7 +376,7 @@ else:
     st.dataframe(df_break.style.format({
         'Count':'{:.0f}','BIP':'{:.0f}','BAcon':'{:.3f}','wOBAcon':'{:.3f}',
         'Swing%':'{:.1f}','Z-Swing%':'{:.1f}',
-        'Whiff%':'{:.1f}','Called%':'{:.1f}','Avg Velo':'{:.1f}'
+        'Whiff%':'{:.1f}','Called%':'{:.1f}', 'Foul%':'{:.1f}', 'Avg Velo':'{:.1f}'
     }))
 
     # -----------------------------
