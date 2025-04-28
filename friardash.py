@@ -318,6 +318,7 @@ else:
         z_pct = sub.loc[sub['Zone']==1,'swing'].sum() / (sub['Zone']==1).sum()*100 if (sub['Zone']==1).sum() else np.nan
         wh_pct = sub['whiff'].sum()/sw*100 if sw else np.nan
         cs_pct = sub['called'].sum()/n*100 if n else np.nan
+        foul_pct = sub['foul'].sum()/n*100 if n else np.nan
         avg_velo = sub['PitchVelo'].mean() if n else np.nan
         return {
             'Count':        n,
@@ -327,6 +328,7 @@ else:
             'Swing%':       round(sw_pct,1),
             'Z-Swing%':     round(z_pct,1),
             'Whiff%':       round(wh_pct,1),
+            'Foul%':        round(foul_pct,1),
             'Called%':      round(cs_pct,1),
             'Avg Velo':     round(avg_velo,1)
         }
@@ -352,6 +354,8 @@ else:
             sub = df_all[(df_all['Balls']==1)&(df_all['Strikes']==0)]
         elif cat=='0-1':
             sub = df_all[(df_all['Balls']==0)&(df_all['Strikes']==1)]
+        elif cat=='Early Count':
+            sub = df_all[(df_all['Balls']=<1)&(df_all['Strikes']=<1)]
         elif cat=='Behind':
             sub = df_all[df_all['Balls']<df_all['Strikes']]
         elif cat=='Ahead':
