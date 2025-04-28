@@ -297,84 +297,83 @@ else:
     fh = df_hitter[df_hitter['PitchType'] != 'NotTracked'].copy()
 
 # Define categories: each pitch type + velocity buckets + total
-    pitch_types = fh['PitchType'].unique().tolist()
-    categories  = pitch_types + ['80+', '83+', '86+', 'BB 72+', 'Total']
+   # 1) make sure we keep NotTracked pitches
+    df_all = df_hitter.copy()  
 
-# Helper to compute metrics on a subset
+# 2) define categories in the exact order you want
+    categories = [
+        'Fast Ball','Breaking Ball','Change Up',
+        '80+','83+','86+','BB 72+','NotTracked',
+        '0-0','1-0','0-1','Behind','Ahead','Even','2 Strikes'
+    ]
+
+# 3) helper as before
     def compute_metrics(sub):
         n = len(sub)
         bip = sub['BIP'].sum()
-        if bip:
-            hits = sub.loc[(sub['BIP'] == 1) & (sub['AtBatResult'].isin(hit_list)), 'AtBatResult'].count()
-            bcon = hits / bip
-        else:
-            bcon = np.nan
-        wbc_n = sub.loc[sub['PitchResult'] == 'Strike In Play', 'woba_value']
-        wbc   = wbc_n.mean() if len(wbc_n) else np.nan
+        bcon = sub.loc[sub['BIP']==1, 'AtBatResult'].isin(hit_list).sum() / bip if bip else np.nan
+        wbc = sub.loc[sub['PitchResult']=='Strike In Play','woba_value'].mean() if n else np.nan
         sw = sub['swing'].sum()
-        sw_pct = sw / n * 100 if n else np.nan
-        emask = (sub['Balls'] <= 1) & (sub['Strikes'] <= 1)
-        early = sub.loc[emask, 'swing'].sum()
-        early_pct = early / emask.sum() * 100 if emask.sum() else np.nan
-        zmask = sub['Zone'] == 1
-        z_pct = sub.loc[zmask, 'swing'].sum() / zmask.sum() * 100 if zmask.sum() else np.nan
-        wh_pct = sub['whiff'].sum() / sw * 100 if sw else np.nan
-        fo_pct = sub['foul'].sum() / sw * 100 if sw else np.nan
-        cs_pct = sub['called'].sum() / n * 100 if n else np.nan
+        sw_pct = sw/n*100 if n else np.nan
+        z_pct = sub.loc[sub['Zone']==1,'swing'].sum() / (sub['Zone']==1).sum()*100 if (sub['Zone']==1).sum() else np.nan
+        wh_pct = sub['whiff'].sum()/sw*100 if sw else np.nan
+        cs_pct = sub['called'].sum()/n*100 if n else np.nan
         avg_velo = sub['PitchVelo'].mean() if n else np.nan
         return {
-            'Count':           n,
-            'BIP':             bip,
-            'BAcon':           round(bcon,3),
-            'wOBAcon':         round(wbc,3),
-            'Swing%':          round(sw_pct,1),
-            'Early Swing%':    round(early_pct,1),
-            'Z-Swing%':        round(z_pct,1),
-            'Whiff%':          round(wh_pct,1),
-            'Foul%':           round(fo_pct,1),
-            'Called Strike%':  round(cs_pct,1),
-            'Avg Velo':        round(avg_velo,1)
+            'Count':        n,
+            'BIP':          bip,
+            'BAcon':        round(bcon,3),
+            'wOBAcon':      round(wbc,3),
+            'Swing%':       round(sw_pct,1),
+            'Z-Swing%':     round(z_pct,1),
+            'Whiff%':       round(wh_pct,1),
+            'Called%':      round(cs_pct,1),
+            'Avg Velo':     round(avg_velo,1)
         }
 
-# Build breakdown
+# 4) build the breakdown dict
     breakdown = {}
     for cat in categories:
-        if cat in pitch_types:
-            sub = fh[fh['PitchType'] == cat]
-        elif cat == '80+':
-            sub = fh[fh['PitchVelo'] >= 80]
-        elif cat == '83+':
-            sub = fh[fh['PitchVelo'] >= 83]
-        elif cat == '86+':
-            sub = fh[fh['PitchVelo'] >= 86]
-        elif cat == 'BB 72+':
-            breaking = ['Breaking Ball']
-            sub = fh[fh['PitchType'].isin(breaking) & (fh['PitchVelo'] >= 72)]
-        else:
-            sub = fh
+        if cat in ['Fast Ball','Breaking Ball','Change Up']:
+            sub = df_all[df_all['PitchType']==cat]
+        elif cat=='80+':
+            sub = df_all[df_all['PitchVelo']>=80]
+        elif cat=='83+':
+            sub = df_all[df_all['PitchVelo']>=83]
+        elif cat=='86+':
+            sub = df_all[df_all['PitchVelo']>=86]
+        elif cat=='BB 72+':
+            sub = df_all[(df_all['PitchType']=='Breaking Ball')&(df_all['PitchVelo']>=72)]
+        elif cat=='NotTracked':
+            sub = df_all[df_all['PitchType']=='NotTracked']
+        elif cat=='0-0':
+            sub = df_all[(df_all['Balls']==0)&(df_all['Strikes']==0)]
+        elif cat=='1-0':
+            sub = df_all[(df_all['Balls']==1)&(df_all['Strikes']==0)]
+        elif cat=='0-1':
+            sub = df_all[(df_all['Balls']==0)&(df_all['Strikes']==1)]
+        elif cat=='Behind':
+            sub = df_all[df_all['Balls']>df_all['Strikes']]
+        elif cat=='Ahead':
+            sub = df_all[df_all['Balls']<df_all['Strikes']]
+        elif cat=='Even':
+            sub = df_all[df_all['Balls']==df_all['Strikes']]
+        elif cat=='2 Strikes':
+            sub = df_all[df_all['Strikes']>=2]
         breakdown[cat] = compute_metrics(sub)
 
-# Pivot: categories as rows, metrics as columns
+# 5) make the DataFrame and force the row order
     df_break = pd.DataFrame.from_dict(breakdown, orient='index')
     df_break.index.name = 'Category'
+    df_break = df_break.reindex(categories)
 
-# Display styled
-    title = 'Plate Discipline by PitchType & Velocity'
-    styled_break = df_break.style.format({
-        'Count':          '{:.0f}',
-        'BIP':            '{:.0f}',
-        'BAcon':          '{:.3f}',
-        'wOBAcon':        '{:.3f}',
-        'Swing%':         '{:.1f}',
-        'Early Swing%':   '{:.1f}',
-        'Z-Swing%':       '{:.1f}',
-        'Whiff%':         '{:.1f}',
-        'Foul%':          '{:.1f}',
-        'Called Strike%': '{:.1f}',
-        'Avg Velo':       '{:.1f}'
-    })
-    st.subheader(title)
-    st.dataframe(styled_break)
+# 6) display in Streamlit
+    st.subheader('Plate Discipline & Velocity Breakdown')
+    st.dataframe(df_break.style.format({
+        'Count':'{:.0f}','BIP':'{:.0f}','BAcon':'{:.3f}','wOBAcon':'{:.3f}',
+        'Swing%':'{:.1f}','Z-Swing%':'{:.1f}',
+        'Whiff%':'{:.1f}','Called%':'{:.1f}','Avg Velo':'{:.1f}'
+    }))
 
     # -----------------------------
 # Hitter Heatmaps
