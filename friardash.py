@@ -303,7 +303,7 @@ else:
 # 2) define categories in the exact order you want
     categories = [
         'Fast Ball','Breaking Ball','Change Up',
-        '80+','83+','86+','BB 72+','NotTracked',
+        '80+','83+','86+','BB 69+','NotTracked',
         '0-0','1-0','0-1','Behind','Ahead','Even','2 Strikes'
     ]
 
