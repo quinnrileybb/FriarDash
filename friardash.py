@@ -344,8 +344,8 @@ else:
             sub = df_all[df_all['PitchVelo']>=83]
         elif cat=='86+':
             sub = df_all[df_all['PitchVelo']>=86]
-        elif cat=='BB 72+':
-            sub = df_all[(df_all['PitchType']=='Breaking Ball')&(df_all['PitchVelo']>=72)]
+        elif cat=='BB 69+':
+            sub = df_all[(df_all['PitchType']=='Breaking Ball')&(df_all['PitchVelo']>=69)]
         elif cat=='NotTracked':
             sub = df_all[df_all['PitchType']=='NotTracked']
         elif cat=='0-0':
