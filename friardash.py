@@ -353,9 +353,9 @@ else:
         elif cat=='0-1':
             sub = df_all[(df_all['Balls']==0)&(df_all['Strikes']==1)]
         elif cat=='Behind':
-            sub = df_all[df_all['Balls']>df_all['Strikes']]
-        elif cat=='Ahead':
             sub = df_all[df_all['Balls']<df_all['Strikes']]
+        elif cat=='Ahead':
+            sub = df_all[df_all['Balls']>df_all['Strikes']]
         elif cat=='Even':
             sub = df_all[df_all['Balls']==df_all['Strikes']]
         elif cat=='2 Strikes':
