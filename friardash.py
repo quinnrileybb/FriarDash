@@ -8,6 +8,8 @@ from matplotlib.patches import Rectangle
 # -----------------------------
 # Load Data & Compute wOBA for Hitters
 # -----------------------------
+
+st.set_page_config(page_title="FriarDash", layout="wide")
 df = pd.read_csv('malvern_5_8.csv')
 
 # wOBA weights mapping
