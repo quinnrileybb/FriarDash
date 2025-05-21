@@ -10,7 +10,7 @@ from matplotlib.patches import Rectangle
 # -----------------------------
 
 st.set_page_config(page_title="FriarDash")
-df = pd.read_csv('malvern_5_8.csv')
+df = pd.read_csv('malvern_5_20.csv')
 
 # wOBA weights mapping
 woba_weights = {
